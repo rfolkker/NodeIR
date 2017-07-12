@@ -112,6 +112,9 @@ JsonObject JsonObject::Parse(String fromString){
       case ' ':
         // Do nothing
         break;
+      case '\\':
+        // Do nothing
+        break;
       case '}':
         // Do nothing
         break;
