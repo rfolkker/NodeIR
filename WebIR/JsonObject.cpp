@@ -78,7 +78,15 @@ bool JsonObject::Set(int byIndex, String newValue){
 	}
 	return false;
 }
-JsonObject JsonObject::Parse(String fromString){
+bool JsonObject::OnKey(String newKey)
+{
+  return true;
+}
+bool JsonObject::OnValue(String newKey)
+{
+  return true;
+}
+JsonObject JsonObject::OldParse(String fromString){
 	// Json object starts with a 
   String aKey = "";
   String aValue = "";

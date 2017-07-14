@@ -9,6 +9,7 @@
 #include <ir_Mitsubishi.h>
 #include "Headers.h"
 #include "JsonObject.h"
+#include "SimpleObjectNotation.h"
 // wifi.h will contain the ssid and password
 // Comment this out if you want to use it locally
 // The wifi.h will not be included in the project
@@ -140,7 +141,7 @@ void loop() {
   }
   Serial.println("\r============");
 
-  JsonResult = JsonParser.Parse(body);
+  JsonResult = JsonParser.OldParse(body);
   Serial.println("Json Result:");
   for(int counter=0; counter<JsonResult.GetSize();counter++){
     Serial.println(JsonResult.GetKey(counter)+": "+JsonResult.GetValue(counter));
@@ -169,7 +170,6 @@ void loop() {
       Serial.println(String(genericIRCommand[counter]));
     }
     irsend.sendRaw(genericIRCommand, count, khz);
-    
     Serial.println("IR Command was sent");
     
     // Serial.println(req);
