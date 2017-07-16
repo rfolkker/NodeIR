@@ -9,6 +9,7 @@ class JsonObject: public SimpleObjectNotation{
 		int _maxSize;
 		String _keys[10];
 		String _values[10];
+		String _lastKey;
 	public:
 		JsonObject();
 		bool Append(String newKey, String newValue);
@@ -26,6 +27,8 @@ class JsonObject: public SimpleObjectNotation{
     bool GetValueArray(String byKey, short unsigned int* toValues, int maxCount);
 		bool OnKey(String newKey);
     bool OnValue(String newKey);
+		uint64_t GetData();
+		String GetManufacturer();
 };
 
 #endif

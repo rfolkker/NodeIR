@@ -3,11 +3,6 @@
 JsonObject::JsonObject(){
 	_size = 0;
   _maxSize=10;
-	// Zero the array
-	// for(int counter = 0; counter < _maxSize; counter++){
-	//	_keys[counter] = "";
-	//	_values[counter] = "";
-	//}
 }
 
 bool JsonObject::Append(String newKey, String newValue){
@@ -80,10 +75,14 @@ bool JsonObject::Set(int byIndex, String newValue){
 }
 bool JsonObject::OnKey(String newKey)
 {
+  _lastKey = newKey;
+  Serial.println("New Key found: "+_lastKey);
   return true;
 }
-bool JsonObject::OnValue(String newKey)
+bool JsonObject::OnValue(String newValue)
 {
+  Serial.println("Adding ["+newValue+"] to Key: "+_lastKey);
+  Set(_lastKey, newValue, true);
   return true;
 }
 JsonObject JsonObject::OldParse(String fromString){
@@ -154,6 +153,7 @@ String JsonObject::GetKey(int byIndex){
     return "";
   return _keys[byIndex];
 }
+
 String JsonObject::GetValue(int byIndex){
   if(byIndex < 0)
     return "";
@@ -161,9 +161,22 @@ String JsonObject::GetValue(int byIndex){
     return "";
   return _values[byIndex];
 }
+
 String JsonObject::GetValue(String byKey){
   return GetValue(GetIndex(byKey));
 }
+
+uint64_t JsonObject::GetData(){
+  // ffcc0013
+  char hexData[16];
+  GetValue("irData").toCharArray(hexData, 16);
+  return strtoul(hexData, 0, 16);
+}
+
+String JsonObject::GetManufacturer(){
+  return GetValue("irManufacturer");
+}
+
 bool JsonObject::GetValueArray(String byKey, short unsigned int* toValues, int maxCount){
   // take the value at the key, split it, and assign it by int type
   String parseValue = GetValue(byKey);

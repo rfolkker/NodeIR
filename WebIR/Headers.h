@@ -3,17 +3,19 @@
 #define HEADERS_H
 
 #include <Arduino.h>
-class Headers{
+#include "SimpleObjectNotation.h"
+
+class Headers: public SimpleObjectNotation{
 	private:
 		String _Keys[8]= {
-			"Host: ",
-			"User-Agent: ",
-			"Accept: ",
-			"Accept-Language: ",
-			"Accept-Encoding: ",
-			"Content-Type: ",
-			"Content-Length: ", 
-			"Connection: "};
+			"Host",
+			"User-Agent",
+			"Accept",
+			"Accept-Language",
+			"Accept-Encoding",
+			"Content-Type",
+			"Content-Length", 
+			"Connection"};
     int _KeyCount=8;
 		String _Host;
 		String _UserAgent;
@@ -24,6 +26,7 @@ class Headers{
 		int _ContentLength;
 		String _ContentLengthText;
 		String _Connection;
+		String _lastKey;
 	public:
 		Headers();
 		bool Add(String newData);
@@ -36,6 +39,8 @@ class Headers{
 		int GetContentLength(){return _ContentLength;};
     String GetContentLengthText(){return _ContentLengthText;};
 		String GetConnection(){return _Connection;};
+		bool OnKey(String newKey);
+    bool OnValue(String newKey);
 };
 
 #endif
