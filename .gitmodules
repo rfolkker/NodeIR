@@ -1,0 +1,3 @@
+[submodule "NodeOAuth2"]
+	path = NodeOAuth2
+	url = https://github.com/rfolkker/NodeOAuth2.git
