@@ -6,6 +6,7 @@ Repository for the NodeIR code in my attempt at a wireless remote control.
 
 The default command is to post irCmd.  Use this with a body of irData (Hex String), and irManufacter (string).
 *irCmd*
+
 ```javascript
 {
     "irData": "E0E0807F",
