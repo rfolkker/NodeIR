@@ -14,6 +14,7 @@
 // The wifi.h will not be included in the project
 #include "wifi.h"
 /*
+ * Based off original code from:
  * WiFi IR Blaster by Buddy Crotty
  *  Use an ESP8266 module or dev board to receive HTTP GET request
  *  and then send IR codes to an attached IR LED based on those requests.
