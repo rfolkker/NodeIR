@@ -11,10 +11,12 @@
                     "C:\\Users\\Roy Folkker\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.3.0\\cores\\esp8266",
                     "C:\\Users\\Roy Folkker\\Documents\\Arduino\\libraries\\IRremoteESP8266\\src",
                     "C:\\Users\\Roy Folkker\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.3.0\\libraries\\ESP8266WiFi\\src",
-                    "C:\\Users\\Roy Folkker\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.3.0\\libraries\\ESP8266mDNS"
+                    "C:\\Users\\Roy Folkker\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.3.0\\libraries\\ESP8266mDNS",
+                    "${workspaceRoot}"
                 ]
             },
             "intelliSenseMode": "msvc-x64"
         }
-    ]
+    ],
+    "version": 2
 }
