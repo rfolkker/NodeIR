@@ -9,6 +9,7 @@
 #include <ir_Mitsubishi.h>
 #include "Headers.h"
 #include "JsonObject.h"
+#include "InitPageGenerator.h"
 // wifi.h will contain the ssid and password
 // Comment this out if you want to use it locally
 // The wifi.h will not be included in the project
@@ -29,59 +30,16 @@
 const char* ssid = "MYSSID";
 const char* password = "MYPASSWORD";
 #endif
+String dynamicSSID = "";
+String dynamicPWD = "";
+String validateURI = "";
+String accessToken = "";
 MDNSResponder mdns;
 int khz = 38; // 38kHz carrier frequency for both NEC and Samsung
 int count = 68;
 IRsend irsend(4); //an IR led is connected to GPIO4 (pin D2 on NodeMCU)
 short unsigned int genericIRCommand[100]; // This will be used from the Json result
 
-unsigned int powerIRout[68] = {4500,4450,650,1600,600,1650,550,1650,
-600,500,600,550,550,550,550,550,550,550,600,1600,650,1600,600,
-1650,600,500,550,550,550,550,600,550,500,600,550,550,550,1650,
-650,500,550,550,550,550,550,600,500,600,500,600,500,1700,650,
-500,500,1700,600,1600,650,1600,600,1600,650,1600,600,1600,650};
-
-  // Insert RAW IR signal for "TV Power"
-short unsigned int irTVpwr[68] = {4650,4250, 700,1550, 650,1550, 700,1550, 650,450, 650,500, 600,500, 600,500, 600,550, 550,1700, 550,1650, 600,1650, 550,550, 600,500, 600,550, 550,550, 600,500, 600,550, 550,1650, 600,550, 550,550, 600,500, 600,550, 550,550, 600,500, 600,1650, 600,500, 600,1650, 550,1700, 550,1650, 600,1650, 550,1650, 600,1650, 600,0};  // SAMSUNG E0E040BF
-
-  // Insert RAW IR signal for "TV Source"
-unsigned int irTVsrc[] = {4600,4300, 700,1550, 650,1550, 650,1600, 650,450, 650,450, 600,550, 550,550, 600,500, 600,1650, 550,1650, 600,1650, 550,550, 600,500, 600,550, 550,550, 550,550, 600,1650, 550,550, 550,550, 600,500, 600,500, 600,550, 550,550, 600,500, 600,550, 550,1650, 550,1700, 550,1650, 600,1600, 600,1650, 600,1600, 600,1650, 550};  // SAMSUNG E0E0807F
-  
-  // Insert RAW IR signal for "TV Mute"
-unsigned int irTVmute[] = {4650,4250, 700,1550, 650,1550, 700,1550, 650,450, 650,500, 600,500, 600,500, 600,500, 600,1650, 600,1600, 600,1650, 550,550, 600,500, 600,550, 550,550, 600,500, 600,1650, 550,1650, 600,1650, 550,1650, 600,550, 550,550, 550,550, 600,500, 600,550, 550,550, 550,550, 600,500, 600,1650, 550,1650, 600,1650, 550,1650, 600};  // SAMSUNG E0E0F00F
-  
-  // Insert RAW IR signal for "TV Volume Down"
-unsigned int irTVvdn[] = {4650,4250, 700,1550, 650,1550, 700,1550, 650,450, 650,450, 650,450, 600,550, 550,550, 600,1650, 550,1650, 550,1650, 600,550, 550,550, 550,550, 600,500, 600,500, 600,1650, 600,1600, 600,500, 600,1650, 550,550, 600,500, 600,500, 600,550, 550,550, 600,500, 600,1650, 550,550, 550,1650, 600,1650, 550,1650, 600,1650, 550};  // SAMSUNG E0E0D02F
-  
-  // Insert RAW IR signal for "TV Volume Up"
-unsigned int irTVvup[] = {4600,4300, 650,1600, 650,1550, 650,1600, 600,500, 600,550, 600,500, 600,550, 550,550, 550,1700, 550,1650, 600,1650, 550,550, 600,500, 600,550, 550,550, 600,500, 600,1650, 600,1650, 550,1650, 600,550, 550,550, 600,500, 600,550, 550,550, 600,500, 600,550, 550,550, 600,1600, 600,1650, 600,1650, 550,1650, 600,1650, 600};  // SAMSUNG E0E0E01F
-  
-  // Insert RAW IR signal for "TV Channel Up"
-unsigned int irTVchup[] = {4650,4250, 700,1550, 650,1600, 650,1550, 650,500, 600,500, 600,500, 650,500, 600,500, 600,1650, 550,1650, 600,1650, 600,500, 600,500, 600,550, 550,550, 600,550, 550,550, 550,1650, 600,550, 600,500, 600,1650, 550,550, 600,500, 600,550, 550,1650, 600,550, 550,1650, 600,1650, 600,500, 600,1650, 600,1600, 600,1650, 600};  // SAMSUNG E0E048B7
-  
-  // Insert RAW IR signal for "TV Channel Down"
-unsigned int irTVchdn[] = {4600,4350, 650,1550, 650,1600, 650,1600, 600,500, 600,500, 600,550, 550,550, 600,550, 550,1650, 600,1650, 550,1700, 550,550, 550,550, 600,500, 600,550, 550,550, 600,500, 600,550, 550,550, 550,550, 600,1650, 600,500, 600,500, 600,550, 550,1650, 600,1650, 600,1650, 550,1650, 600,550, 550,1650, 600,1650, 600,1650, 550};  // SAMSUNG E0E008F7
-  
-  // Insert RAW IR signal for "Receiver Power"
-unsigned int irRECpwr[] = {9050,4350, 650,500, 600,1600, 600,500, 650,500, 600,1600, 600,550, 600,1600, 600,1650, 550,550, 600,500, 600,1600, 650,1600, 600,500, 600,1650, 600,1600, 600,500, 600,1650, 600,1600, 600,550, 600,1600, 600,500, 600,550, 600,1600, 600,1600, 650,500, 600,500, 600,1600, 650,500, 600,1600, 600,1650, 600,500, 600,500, 600};  // NEC 4B36D32C
-
-  // Insert RAW IR signal for "Receiver Power On"
-unsigned int irRECpwrON[] = {9000,4400, 600,550, 600,1600, 600,500, 600,550, 600,1600, 600,500, 600,1600, 650,1600, 600,1600, 600,500, 650,1600, 600,1600, 600,500, 650,1600, 600,1600, 600,500, 600,550, 600,500, 600,1600, 600,550, 600,500, 600,500, 650,500, 600,500, 600,1600, 650,1600, 600,500, 600,1600, 650,1600, 600,1600, 600,1600, 600,1600, 650};  // NEC 4BB620DF
-  
-  // Insert RAW IR signal for "Receiver Power Off"
-unsigned int irRECpwrOFF[] = {9000,4400, 600,550, 550,1650, 600,550, 550,550, 600,1650, 550,550, 600,1650, 550,1650, 600,550, 550,550, 550,1650, 600,1650, 600,550, 550,1650, 600,1650, 550,550, 600,1650, 550,1650, 600,1650, 600,500, 600,550, 550,550, 600,1650, 550,550, 600,500, 600,550, 550,550, 550,1700, 550,1650, 600,1650, 550,550, 600,1650, 550};  // NEC 4B36E21D
-
-  // Insert RAW IR signal for "Receiver Mute"
-unsigned int irRECmute[] = {9000,4400, 650,450, 650,1600, 600,500, 600,500, 650,1600, 600,500, 600,1650, 600,1600, 600,1600, 650,500, 600,1600, 650,1600, 600,500, 600,1600, 650,1600, 600,500, 600,1650, 600,500, 600,1600, 650,500, 600,500, 600,500, 600,500, 650,500, 600,500, 600,1600, 650,500, 600,1600, 600,1600, 650,1600, 600,1650, 600,1600, 600};  // NEC 4BB6A05F
-  
-  // Insert RAW IR signal for "Receiver Volume Down"
-unsigned int irRECvdn[] = {9150,4250, 750,350, 700,1550, 700,400, 700,450, 650,1550, 700,450, 600,1600, 650,1600, 600,1650, 600,500, 600,1650, 600,1600, 600,550, 600,1600, 600,1650, 600,500, 600,1650, 600,1600, 650,500, 600,500, 600,500, 650,500, 600,500, 600,500, 600,550, 600,500, 600,1650, 600,1600, 600,1650, 600,1650, 600,1600, 600,1650, 600};  // NEC 4BB6C03F
-  
-  // Insert RAW IR signal for "Receiver Volume Up"
-unsigned int irRECvup[] = {9050,4400, 650,500, 600,1600, 600,550, 600,500, 600,1650, 600,500, 600,1600, 650,1600, 600,1600, 600,550, 600,1600, 600,1600, 650,500, 600,1600, 650,1600, 600,500, 600,550, 600,1600, 600,550, 600,500, 600,550, 600,500, 600,550, 600,500, 600,1600, 650,500, 600,1600, 600,1650, 600,1600, 600,1650, 600,1600, 600,1600, 600};  // NEC 4BB640BF
-
-  // Insert RAW IR signal for "Receiver Source CBL/SAT"
-unsigned int irRECsrc[] = {8950,4450, 600,500, 600,1650, 600,500, 600,500, 600,1650, 600,500, 600,1600, 600,1650, 600,1600, 600,550, 600,1600, 600,1650, 600,500, 600,1600, 600,1650, 600,500, 600,500, 600,1650, 600,1600, 600,1650, 600,500, 600,500, 600,500, 650,500, 600,1600, 600,500, 600,550, 600,500, 600,1600, 600,1650, 600,1600, 600,1650, 600};  // NEC 4BB6708F
 
 // Create an instance of the server
 // specify the port to listen on as an argument
@@ -91,17 +49,45 @@ WiFiServer server(80);
 void setup() {
   Serial.begin(115200);
   delay(10);
+  Serial.println();
+  Serial.println();
 
   irsend.begin();
-  
+  WiFi.softAP("IRDoom", "Equivine");
+    // Print the IP address
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi Connected");
+
+  Serial.println("Starting default Page trigger");
+  dnsServer.start(DNS_PORT, "*", A)
+  // Start the server
+  server.begin();
+}
+
+void switchAccess(){
+  Serial.println("Disconnecting Wireless AP");
+  char irSSID[100];
+  char irPWD[100];
+  dnsServer.close();
+  WiFi.disconnect(false);
+    while (WiFi.status() != WL_DISCONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
   // Connect to WiFi network
   Serial.println();
   Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-  
-  WiFi.begin(ssid, password);
-  
+  Serial.print("Connecting to "+ dynamicSSID);
+  dynamicSSID.toCharArray(irSSID, 100);
+  dynamicPWD.toCharArray(irPWD, 100);
+  WiFi.begin(irSSID, irPWD);
+
+  // TODO: Add the validation peice for OAuth here
+
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
@@ -123,8 +109,8 @@ void setup() {
 
   Serial.println();
   Serial.println();
-}
 
+}
 void loop() {
   // Check if a client has connected
   WiFiClient client = server.available();
@@ -147,7 +133,8 @@ void loop() {
   String remaining = "";
   String body="";
   String line="";
-  
+  String responseString="HTTP/1.1 200 OK\r\n";
+
   Serial.println(req);
   while(client.available())
   {
@@ -195,13 +182,20 @@ void loop() {
     Serial.println(JsonResult.GetKey(counter)+": "+JsonResult.GetValue(counter));
   }
   Serial.println("\r============");
+
 //  if(req.indexOf("/irOut") !=-1){
 //    irsend.sendRaw(powerIRout, 1, khz);
 //  }
   // Match the request
-  if (req.indexOf("/irTVpwr") != -1){
-      irsend.sendRaw(irTVpwr, 68, 38);   
-      Serial.println("IRreq irTVpwr sent");
+  if(req.indexOf("/irInit") != -1){
+    // We need to initialize the network
+    Serial.println("new request to connect has been initiated");
+    if(dynamicSSID.length()<2){
+      dynamicSSID = JsonResult.GetValue("irSSID");
+      dynamicPWD = JsonResult.GetValue("irPWD");
+      accessToken = JsonResult.GetValue("irAuthKey");
+      validateURI = JsonResult.GetValue("irAuthPath");
+    }
   }
   else if(req.indexOf("/irCommand") !=-1){
     // Parse Json object, and use it to configure and send the command
@@ -211,25 +205,34 @@ void loop() {
     // int irCount = root["count"];
     // int irFreq = root["frequency"];
     // irsend.sendRaw(irCmd, irCount, irFreq);
-    khz = JsonResult.GetValue("irFreq").toInt(); // 38kHz carrier frequency for both NEC and Samsung
-    count = JsonResult.GetValue("irCount").toInt();
-    JsonResult.GetValueArray("irCmd", genericIRCommand, count);
+    if(dynamicSSID.length()>1){
+      khz = JsonResult.GetValue("irFreq").toInt(); // 38kHz carrier frequency for both NEC and Samsung
+      count = JsonResult.GetValue("irCount").toInt();
+      JsonResult.GetValueArray("irCmd", genericIRCommand, count);
 
-    Serial.println("Khz: "+ String(khz));
-    Serial.println("Frequency Count: "+String(count));
-    Serial.println("The Frequency List:");
-    for(int counter=0;counter<count;counter++){
-      Serial.println(String(genericIRCommand[counter]));
+      Serial.println("Khz: "+ String(khz));
+      Serial.println("Frequency Count: "+String(count));
+      Serial.println("The Frequency List:");
+      for(int counter=0;counter<count;counter++){
+        Serial.println(String(genericIRCommand[counter]));
+      }
+      irsend.sendRaw(genericIRCommand, count, khz);
+      
+      Serial.println("IR Command was sent");
     }
-    irsend.sendRaw(genericIRCommand, count, khz);
-    
-    Serial.println("IR Command was sent");
-    
+    else {
+      Serial.println("Wireless has not yet been initialized");
+      Serial.println("Unable to execute command");
+      Serial.println("");
+      Serial.println("");
+    }    
     // Serial.println(req);
   }
   else {
-    Serial.println("invalid request");
+    Serial.println("default request triggered");
     Serial.println(req);
+    InitPageGenerator defaultGenerator;
+    responseString = defaultGenerator.GetDefaultPageFile();
     // client.stop();
     // return;
   }
@@ -238,7 +241,7 @@ void loop() {
    
   // Send the response to the client
   //client.print(s);
-  client.print("HTTP/1.1 200 OK\r\n");
+  client.print(responseString);
   delay(1);
   Serial.println("Client Disconnected");
   Serial.println();

@@ -1,0 +1,31 @@
+<html>
+
+<head>
+    <title>Initialize WebIR</title>
+    <script>
+        function TriggerInit() {
+            $.ajax("http://192.168.4.1/irInit", {
+                type: "POST",
+                dataType: 'json',
+                data: JSON.stringify('{"irSSID": "' + $("txtSSID").val() + '", "irPWD": "' + $("txtPWD").val() + '"}'),
+                success: function() {
+                    alert("Connection triggered");
+                }
+            })
+        }
+    </script>
+</head>
+
+<body>
+    <form>
+        <p>
+            <div><label>SSID:</label><input id="txtSSID" type="text" width="20" /></div>
+        </p>
+        <p>
+            <div><label>Passphrase:</label><input id="txtPass" type="text" width="20" /></div>
+        </p>
+        <div><input type="button" value="Connect" onclick="TriggerInit();" />
+    </form>
+</body>
+
+</html>
