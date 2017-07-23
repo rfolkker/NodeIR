@@ -6,6 +6,9 @@
  var tvPower = [4650,4250, 700,1550, 650,1550, 700,1550, 650,450, 650,500, 600,500, 600,500, 600,550, 550,1700, 550,1650, 600,1650, 550,550, 600,500, 600,550, 550,550, 600,500, 600,550, 550,1650, 600,550, 550,550, 600,500, 600,550, 550,550, 600,500, 600,1650, 600,500, 600,1650, 550,1700, 550,1650, 600,1650, 550,1650, 600,1650, 600];
  var tvFreq = 38;
  
+ function TriggerInit(){
+
+ }
  function TogglePower(url, IRCommand, IRFreq) {
     $.ajax
     (url, {
@@ -19,9 +22,15 @@
         }
     })
 }
+$(document).ready(function(){
+        $("TogglePower").click(function(){
+            TogglePower('http://192.168.1.2/irCommand', tvPower, tvFreq);
+    });
+        $("TriggerConnect").click(function())
+});
 </script>
 </head>
 <body>
-<a href="#" onClick="TogglePower('http://192.168.1.2/irCommand', tvPower, tvFreq);">Power</a>
+<a href="#" id="TogglePower" >Power</a>
 </body>
 </html>
