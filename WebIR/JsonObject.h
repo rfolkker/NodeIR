@@ -2,12 +2,14 @@
 #define JSONOBJECT_H
 
 #include <Arduino.h>
-class JsonObject{
+#include "SimpleObjectNotation.h"
+class JsonObject: public SimpleObjectNotation{
 	private:
 		int _size;
 		int _maxSize;
 		String _keys[10];
 		String _values[10];
+		String _lastKey;
 	public:
 		JsonObject();
 		bool Append(String newKey, String newValue);
@@ -21,8 +23,12 @@ class JsonObject{
     String GetValue(int byIndex);
     String GetValue(String byKey);
     int GetSize(){return _size;};
-		JsonObject Parse(String fromString);
+		JsonObject OldParse(String fromString);
     bool GetValueArray(String byKey, short unsigned int* toValues, int maxCount);
+		bool OnKey(String newKey);
+    bool OnValue(String newKey);
+		uint64_t GetData();
+		String GetManufacturer();
 };
 
 #endif

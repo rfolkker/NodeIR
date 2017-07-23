@@ -9,6 +9,7 @@
 #include <ir_Mitsubishi.h>
 #include "Headers.h"
 #include "JsonObject.h"
+#include "SimpleObjectNotation.h"
 #include "InitPageGenerator.h"
 // wifi.h will contain the ssid and password
 // Comment this out if you want to use it locally
@@ -109,13 +110,11 @@ void switchAccess(){
 
   Serial.println();
   Serial.println();
-
 }
 void loop() {
   // Check if a client has connected
   WiFiClient client = server.available();
   Headers webHeader;
-  JsonObject JsonParser;
   JsonObject JsonResult;
   
   if (!client) {
@@ -133,6 +132,8 @@ void loop() {
   String remaining = "";
   String body="";
   String line="";
+  String Manufacturer = "";
+  uint64_t SignalData = 0;
   String responseString="HTTP/1.1 200 OK\r\n";
 
   Serial.println(req);
@@ -142,7 +143,7 @@ void loop() {
     if(line.indexOf(":") == -1){
       break; // end of the header has been reached
     }
-    webHeader.Add(line);
+    webHeader.Parse(line);
     // remaining +=line;
     // Serial.println(line);
   }
@@ -176,13 +177,12 @@ void loop() {
   }
   Serial.println("\r============");
 
-  JsonResult = JsonParser.Parse(body);
+  JsonResult.Parse(body);
   Serial.println("Json Result:");
   for(int counter=0; counter<JsonResult.GetSize();counter++){
     Serial.println(JsonResult.GetKey(counter)+": "+JsonResult.GetValue(counter));
   }
   Serial.println("\r============");
-
 //  if(req.indexOf("/irOut") !=-1){
 //    irsend.sendRaw(powerIRout, 1, khz);
 //  }
@@ -197,7 +197,7 @@ void loop() {
       validateURI = JsonResult.GetValue("irAuthPath");
     }
   }
-  else if(req.indexOf("/irCommand") !=-1){
+  else if(req.indexOf("/irRawCmd") !=-1){
     // Parse Json object, and use it to configure and send the command
     // StaticJsonBuffer<512> jsonBuffer;
     // JsonObject& root = jsonBuffer.parseObject("{testing: \"value\"}");
@@ -205,36 +205,48 @@ void loop() {
     // int irCount = root["count"];
     // int irFreq = root["frequency"];
     // irsend.sendRaw(irCmd, irCount, irFreq);
-    if(dynamicSSID.length()>1){
-      khz = JsonResult.GetValue("irFreq").toInt(); // 38kHz carrier frequency for both NEC and Samsung
-      count = JsonResult.GetValue("irCount").toInt();
-      JsonResult.GetValueArray("irCmd", genericIRCommand, count);
+    khz = JsonResult.GetValue("irFreq").toInt(); // 38kHz carrier frequency for both NEC and Samsung
+    count = JsonResult.GetValue("irCount").toInt();
+    JsonResult.GetValueArray("irCmd", genericIRCommand, count);
 
-      Serial.println("Khz: "+ String(khz));
-      Serial.println("Frequency Count: "+String(count));
-      Serial.println("The Frequency List:");
-      for(int counter=0;counter<count;counter++){
-        Serial.println(String(genericIRCommand[counter]));
-      }
-      irsend.sendRaw(genericIRCommand, count, khz);
-      
-      Serial.println("IR Command was sent");
+    Serial.println("Khz: "+ String(khz));
+    Serial.println("Frequency Count: "+String(count));
+    Serial.println("The Frequency List:");
+    for(int counter=0;counter<count;counter++){
+      Serial.println(String(genericIRCommand[counter]));
     }
-    else {
-      Serial.println("Wireless has not yet been initialized");
-      Serial.println("Unable to execute command");
-      Serial.println("");
-      Serial.println("");
-    }    
+    irsend.sendRaw(genericIRCommand, count, khz);
+    Serial.println("IR Command was sent");
+    
     // Serial.println(req);
+  }
+  else if(req.indexOf("/irCmd")){
+    Serial.println("System Specific Command recieved");
+    Manufacturer = JsonResult.GetManufacturer();
+    SignalData = JsonResult.GetData();
+    Serial.println("Manufacturer identified as: "+Manufacturer);
+    if(Manufacturer == "Samsung"){
+      Serial.println("Succesfully identified Samsung, attempting to execute command");
+      if(SignalData!=0){
+        Serial.println("Command is valid.");
+        irsend.sendSAMSUNG(SignalData);
+        Serial.println("IR Command ["+JsonResult.GetValue("irData")+"] was sent");
+      }
+    }
+    else if(Manufacturer == "Dish"){
+      Serial.println("Succesfully identified Dish, attempting to execute command");
+      if(SignalData!=0){
+        Serial.println("Command is valid.");
+        irsend.sendDISH(SignalData);
+        Serial.println("IR Command ["+JsonResult.GetValue("irData")+"] was sent");
+      }
+    }
   }
   else {
     Serial.println("default request triggered");
     Serial.println(req);
     InitPageGenerator defaultGenerator;
     responseString = defaultGenerator.GetDefaultPageFile();
-    // client.stop();
-    // return;
   }
   
   client.flush();

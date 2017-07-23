@@ -12,27 +12,86 @@ Headers::Headers(){
 	_Connection = "";
 };
 
+bool Headers::OnKey(String newKey)
+{
+	Serial.println("New header found: "+newKey);
+	_lastKey = newKey;
+	return true;
+}
+
+bool Headers::OnValue(String newValue)
+{
+	int index = -1;
+	bool retVal = false;
+	Serial.println("Setting " + _lastKey + " to value: " + newValue);
+	for(int counter = 0; counter < _KeyCount;counter++){
+
+		if(_Keys[counter]== _lastKey){
+			index = counter;
+			break;
+		}
+	}
+	if(index==-1)
+		return false;
+
+	switch(index){
+		case 0:
+			_Host = newValue;
+			retVal = true;
+			break;
+		case 1:
+			_UserAgent = newValue;
+			retVal = true;
+			break;
+		case 2:
+			_Accept = newValue;
+			retVal = true;
+			break;
+		case 3:
+			_AcceptLanguage = newValue;
+			retVal = true;
+			break;
+		case 4:
+			_AcceptEncoding = newValue;
+			retVal = true;
+			break;
+		case 5:
+			_ContentType = newValue;
+			break;
+		case 6:
+			_ContentLengthText = newValue;
+			_ContentLength  = _ContentLengthText.toInt();
+			retVal = true;
+			break;
+		case 7:
+			_Connection = newValue;
+			retVal = true;
+			break;
+	}
+
+	return retVal;	
+}
+
 bool Headers::Add(String newData){
 	int index = -1;
 	String useValue=newData;
-  String compareValue = "";
+	String compareValue = "";
 	bool retVal = false;
-  useValue.remove(0,1);
-	// Serial.println("Adding ["+useValue+"] to Header");
+	useValue.remove(0,1);
+
 	for(int counter = 0; counter < _KeyCount;counter++){
-    compareValue = useValue.substring(0, _Keys[counter].length());
-    // Serial.println("Searching for substring: "+_Keys[counter]);
-    // Serial.println("Found: "+compareValue);
+		compareValue = useValue.substring(0, _Keys[counter].length());
+
 		if(_Keys[counter]== compareValue){
 			index = counter;
 			useValue.remove(0,_Keys[index].length());
 			break;
 		}
 	}
-	
+
 	if(index==-1)
 		return false;
-	
+
 	switch(index){
 		case 0:
 			_Host = useValue;
@@ -54,9 +113,9 @@ bool Headers::Add(String newData){
 			_AcceptEncoding = useValue;
 			retVal = true;
 			break;
-    case 5:
-      _ContentType = useValue;
-      break;
+		case 5:
+			_ContentType = useValue;
+			break;
 		case 6:
 			_ContentLengthText = useValue;
 			_ContentLength  = _ContentLengthText.toInt();
@@ -67,5 +126,6 @@ bool Headers::Add(String newData){
 			retVal = true;
 			break;
 	}
+
 	return retVal;
 };
